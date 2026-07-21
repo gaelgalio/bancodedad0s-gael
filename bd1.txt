@@ -1,0 +1,30 @@
+create database "atv1gael";
+
+create table produto (
+	id_produto serial primary key,
+	tx_nome varchar (200),
+	vl_preco numeric (5, 2),
+	nr_quantidade numeric (18, 0),
+	vl_peso numeric (18, 2)
+);
+
+create table tb_usuario (
+	id_usuario serial primary key,
+	tx_nome varchar(200),
+	nr_telefone numeric (18, 0),
+	tx_email varchar (200),
+	tx_senha varchar (200),
+	dt_usuario timestamp
+);
+
+create table tb_paciente (
+	id_paciente serial primary key,
+
+	cd_usuario integer references tb_usuario(id_usuario),
+	
+	tx_nome varchar (200),
+	tx_especie varchar (200),
+	vl_peso numeric (18, 0),
+	vl_idade numeric (18, 0),
+	dt_paciente timestamp
+);
