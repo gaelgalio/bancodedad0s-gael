@@ -28,3 +28,77 @@ create table tb_paciente (
 	vl_idade numeric (18, 0),
 	dt_paciente timestamp
 );
+
+21/07/2026
+
+insert into tb_usuario (tx_nome, nr_telefone)
+values ('gael', 4999995794);
+
+insert into tb_usuario (tx_email, tx_senha)
+values ('gaelrichardscheffer@gmail.com', 'SenhaDoGael09');
+
+insert into tb_usuario (dt_usuario)
+values ('2026-07-21');
+
+***
+
+create table tb_calculadora (
+	id_calc serial primary key,
+	vl_valor numeric (18, 2) not null,
+	tx_operacao varchar (1) not null,
+	dt_calc timestamp default current_date
+);
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (323, '-');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (65, '-');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (892, '-');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (209, '-');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (455, '+');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (24, '+');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (744, '+');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (264, '+');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (204, '/');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (345, '/');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (983, '/');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (72, '/');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (443, '*');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (798, '*');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (54, '*');
+
+insert into tb_calculadora (vl_valor,tx_operacao)
+values (896, '*');
+
+select * from tb_calculadora;
+
+// select nr_valor, tx_operacao from tb_calculadora
+where tx_operacao = '+'; (exibe operacoes com + da coluna valor e operacao)
+// select sum (vl_valor) from tb_calculadora where tx_operacao = '+'; (soma)
