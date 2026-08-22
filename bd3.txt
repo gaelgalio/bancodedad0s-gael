@@ -1,0 +1,35 @@
+select * from tb_aluno
+where tx_cidade = 'Chapecó'
+order by tx_nome asc;
+
+select tb_aluno.tx_nome, tb_nota.vl_nota from tb_aluno, tb_nota
+where vl_nota < 5
+order by vl_nota asc;
+
+select tb_aluno.tx_nome, tb_aluno.tx_cidade from tb_aluno
+order by tx_cidade asc;
+
+select * from tb_turma
+left join tb_matricula
+on tb_matricula.id_turma = tb_turma.id_turma
+left join tb_nota
+on tb_nota.id_matricula = tb_matricula.id_matricula 
+where id_nota is null;
+
+select * from tb_aluno
+left join tb_matricula
+on tb_matricula.id_aluno = tb_aluno.id_aluno 
+where id_matricula is null 
+order by tx_nome asc;
+
+select tx_nome from tb_aluno
+where tx_cidade = 'Chapecó';
+
+select tb_aluno.tx_nome, tb_disciplina.tx_nome, tb_nota.vl_nota from tb_aluno
+inner join tb_matricula
+on tb_matricula.id_turma =tb_aluno.id_aluno
+inner join tb_nota
+on tb_nota.id_matricula =tb_matricula.id_matricula
+inner join tb_disciplina
+on tb_nota.id_disciplina =tb_disciplina.id_disciplina
+where vl_nota =5 or vl_nota =3 or vl_nota= 7 or vl_nota =9;
