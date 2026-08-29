@@ -544,5 +544,47 @@ inner join tb_tipo_contato tipo
 group by tipo.tx_descricao;
 
 -- 6
+with vendamaior as (
+select
+max(dt_venda) as maior,
+cd_cliente
+from
+tb_venda
+where upper(tx_status) = upper('PAGO')
+group by cd_cliente
+)
+select
+*
+from
+tb_venda
+inner join vendamaior
+on vendamaior.cd_cliente = tb_venda.cd_cliente
+and tb_venda.dt_venda >= vendamaior.maior
 
+-- 7
 
+with receitaBruta as (
+select
+	sum (nr_quantidade * vl_unitario) as receita,
+	cd_empresa
+from 
+	tb_item_venda item
+inner join tb_venda venda
+	on venda.id_venda = item.cd_venda 
+group by venda.cd_empresa),
+quantidadeVendas as (
+select
+	count (cd_empresa) as quantidade,
+	cd_empresa
+from tb_venda venda
+where upper (venda.tx_status) = upper ('pago')
+group by venda.cd_empresa)
+select tx_razao_social
+	from tb_empresa empresa
+inner join quantidadeVendas
+	on quantidadeVendas.cd_empresa = empresa.id_empresa
+inner join receitaBruta
+	on receitaBruta.cd_empresa = empresa.id_empresa
+where quantidade > 3
+and receitaBruta.receita > 10000
+order by receitaBruta desc;
