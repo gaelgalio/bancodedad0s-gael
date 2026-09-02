@@ -265,3 +265,27 @@ inner join tb_item_venda item
 	on item cd_venda.id_item = ven.id_venda
 group by 
 	cliente.tx_nome
+
+-- 8
+
+with vendas as (
+select
+cd_cliente,
+sum(produto.nr_quantidade * produto.vl_unitario ) as valor
+from tb_venda
+inner join tb_item_venda produto on produto.cd_venda = id_venda
+where
+upper(tx_status) = 'PAGO'
+group by
+cd_cliente
+), media as (
+select sum(valor) / count(distinct cd_cliente) as mediaa from vendas
+)
+select * from tb_cliente
+inner join vendas on cd_cliente = id_cliente
+inner join media on valor > mediaa
+
+-- 9
+
+SELECT tx_nome FROM tb_cliente 
+WHERE upper (tx_nome) like 'A%' or lower (tx_nome) ilike '%O';
