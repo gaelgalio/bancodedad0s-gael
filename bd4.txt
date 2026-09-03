@@ -289,3 +289,59 @@ inner join media on valor > mediaa
 
 SELECT tx_nome FROM tb_cliente 
 WHERE upper (tx_nome) like 'A%' or lower (tx_nome) ilike '%O';
+
+-- 11
+
+create table atividade 
+as (
+with compras as (
+select
+	count (distinct id_venda) as total_compras,
+	sum (item.nr_quantidade * item.vl_unitario) as total_gasto,
+	min (venda.dt_venda) as primeira_compra,
+	max (venda.dt_venda) as ultima_compra,
+	cd_cliente
+from
+	tb_venda venda
+inner join tb_item_venda item
+	on item.cd_venda = venda.id_venda
+where tx_status = 'PAGO'
+group by cd_cliente
+)
+select
+	cliente.tx_nome as nome,
+	endereco.tx_cidade as cidade,
+	compras.total_compras,
+	compras.total_gasto,
+	compras.primeira_compra,
+	compras.ultima_compra,
+	case
+		when total_compras < 1 then 'cliente pequeno'
+		when total_compras = 1 then 'cliente medio'
+		when total_compras = 2 then 'cliente grande'
+		else 'outro'
+	end as status_cliente,
+	(
+	select
+		produto.tx_nome
+	from 
+		tb_produto produto
+	inner join tb_item_venda item on item.cd_produto = produto.id_produto
+	inner join tb_venda venda on venda.id_venda = item.cd_venda
+	where
+		venda.tx_status = 'PAGO' and venda.cd_cliente = cliente.id_cliente
+		group by produto.id_produto, produto.tx_nome
+	order by sum(item.nr_quantidade) desc
+	limit 1
+	)
+	from 
+		tb_cliente cliente
+	inner join
+		tb_endereco endereco
+		on cliente.cd_endereco = endereco.id_endereco
+	inner join
+		compras
+		on compras.cd_cliente = cliente.id_cliente
+	);
+
+select * from atividade;
