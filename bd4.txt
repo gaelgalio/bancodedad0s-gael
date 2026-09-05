@@ -345,3 +345,16 @@ select
 	);
 
 select * from atividade;
+
+select id_produto, vl_preco from tb_produto;
+
+alter table tb_cliente
+	update column tx_cnpj varchar = (id_produto * vl_preco);
+
+update tb_produto prod 
+	set tx_categoria = (select tx_descricao from tb_categoria
+	where  prod.cd_categoria = tb_categoria.id_categoria);
+--	where id_produto = 12;
+
+alter table tb_produto
+	add column tx_categoria varchar (255);
