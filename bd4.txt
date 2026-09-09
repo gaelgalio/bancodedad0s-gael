@@ -358,3 +358,29 @@ update tb_produto prod
 
 alter table tb_produto
 	add column tx_categoria varchar (255);
+
+
+-- 1
+with vendas as (
+select
+	min(historico.vl_preco_novo) as max_valor,
+	max(historico.vl_preco_anterior) as min_valor,
+	cd_produto
+	from 
+		tb_preco_historico historico
+	where 
+		historico.dt_alteracao 
+	between 
+		'2024-02-01 00:00:00.000' and '2024-03-30 00:00:00.000'
+	group by cd_produto 
+	)
+select
+	tx_nome as nome_produto,
+	vendas.min_valor,
+	vendas.max_valor
+from 
+	tb_produto produto
+inner join 
+	vendas 
+on
+	vendas.cd_produto = produto.id_produto;
