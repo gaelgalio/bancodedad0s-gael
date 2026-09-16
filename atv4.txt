@@ -112,3 +112,80 @@ group by
 	tc.tx_nome
 having
 	count(tp.cd_categoria) > 2;
+
+  --
+
+  -- 8
+
+create table tb_cliente (
+    id_cliente serial not null PRIMARY KEY,
+    -- serial n precisa ser not null 
+    tx_unidfed varchar (255) check ( tx_unidfed = upper (tx_unidfed)),
+    --varchar pra UF pode ser só 2 campos e nao 255
+    tx_nome varchar (255),
+    nr_idade NUMERIC(18,0) NOT null check( nr_idade > 0 )
+);
+-- ^ estrutura
+
+INSERT INTO tb_cliente (id_cliente, tx_unidfed, tx_nome, nr_idade)
+	VALUES
+ 	(1, 'PR', 'Lau Mota', 25),
+	(2, 'SC', 'Marcos Dias', 37),
+	(3, 'SP', 'Rosana Freitas', 80);
+
+-- ^ inserção de informacoes na estrutura ja definida
+-- essas duas coisas n se misturam <3
+select * from tb_cliente;
+delete from tb_cliente;
+
+--9
+alter table tb_pedido
+add column cd_cliente integer references
+tb_cliente(id_cliente)
+;
+
+UPDATE tb_pedido
+SET    cd_cliente = 3
+WHERE  id_pedido = 5;
+
+
+--ou
+
+update tb_pedido
+set cd_cliente 1
+ where id_pedido in (3, 6, 8);
+
+select * from tb_pedido;
+
+15/09/2026
+
+-- 1
+
+select cat.tx_nome,
+	max(tp.vl_preco) as maximo,
+	min (tp.vl_preco) as minimo
+from tb_categoria cat
+	inner join tb_produto tp
+	on tp.id_produto  = tp.cd_categoria
+	group by cat.tx_nome;
+
+select tx_nome from tb_categoria;
+
+-- 2
+
+select tp.tx_nome,
+	sum(pedido.nr_quantidade * tp.vl_preco) as soma
+	from tb_produto tp
+	inner join tb_pedido pedido
+	on tp.id_produto = pedido.cd_produto 
+	group by tp.tx_nome
+	order by soma desc;
+
+-- 3
+alter table tb_cliente
+add column cd_usuario integer references tb_produto (id_produto);
+
+alter table tb_produto 
+add column cd_cliente integer,
+add constraint cliente_fk foreign key cd_cliente
+references tb_cliente (id_cliente);
