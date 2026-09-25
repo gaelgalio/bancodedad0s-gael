@@ -189,3 +189,33 @@ alter table tb_produto
 add column cd_cliente integer,
 add constraint cliente_fk foreign key cd_cliente
 references tb_cliente (id_cliente);
+
+-- atividade 1 roles
+
+create role perfil_leitura with login password 'leitura';
+
+grant select on all tables
+	in schema public to perfil_leitura;
+
+select * from tb_produto;
+
+update tb_produto set nr_estoque = 90
+where id_produto = 3;
+
+grant insert, update on all tables
+	in schema public to perfil_leitura;
+
+insert into tb_produto (id_produto, tx_nome, vl_preco, nr_estoque, fl_ativo, cd_categoria)
+values (8, 'Gravador de Som', 80.59, 50, true, 3);
+
+revoke delete on all tables in schema public
+	from perfil_leitura;
+---
+
+create role perfil_joana with login password '123';
+
+grant create
+	on schema public to perfil_joana;
+
+grant select on tb_usuario
+	in schema public to perfil_joana;
