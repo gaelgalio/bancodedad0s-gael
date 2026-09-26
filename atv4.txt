@@ -219,3 +219,39 @@ grant create
 
 grant select on tb_usuario
 	in schema public to perfil_joana;
+
+  --- 25/09
+
+---1
+
+create role
+	perfil_atendimento with login password '123atendimento';
+
+grant
+	insert, select
+	on tb_pedido
+	to perfil_atendimento;
+
+---2
+
+create role
+	perfil_gestor 
+with login password '123gestor';
+
+grant
+	all privileges on tb_produto
+	to perfil_gestor;
+
+---3
+
+grant insert on tb_pedido 
+	to perfil_leitura;
+
+revoke insert on tb_pedido
+	from perfil_leitura;
+
+---4
+
+revoke perfil_leitura
+	from perfil_joana;
+
