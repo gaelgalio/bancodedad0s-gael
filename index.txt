@@ -1,0 +1,77 @@
+explain
+select * from tb_usuarios
+	where tx_email = 'usuario3500@exemplo.com';
+
+create index
+ idx_usuario_email
+ on tb_usuarios(tx_email);
+
+---
+	select id_pedido,
+	dt_pedido,
+	vl_total,
+	cd_usuario
+	from tb_pedidos tp
+ 		where cd_usuario = 1234;
+
+create index
+idx_tabela_coluna -- pedidos_usuario
+on tb_pedidos (cd_usuario);
+
+---
+
+select tu.tx_nome from tb_usuarios tu
+inner join tb_pedidos tp
+	on tp.cd_usuario = tu.id_usuario
+inner join tb_itens_pedido item
+	on item.cd_pedido = tp.id_pedido 
+inner join tb_produtos pro
+	on pro.id_produto = item.cd_produto
+
+	where id_usuario = 1234;
+
+create index
+	idx_pedido_usuario
+	on tb_pedidos(cd_usuario);
+
+create index
+	idx_itens_pedido
+	on tb_itens_pedido(cd_pedido);
+
+create index 
+	idx_produtos
+	on tb_produtos(id_produto);
+
+-- 
+
+select
+	sum (tp.vl_total) as total,
+	id_pedido,
+	dt_pedido
+from tb_pedidos tp
+	where tx_status = upper ('ENTREGUE')
+	and dt_pedido >= '2023-05-23'
+group by id_pedido;
+
+create index
+	idx_pedido_status
+	on tb_pedidos(tx_status);
+
+drop index idx_pedido_id;
+-- 40%
+
+--
+select 
+	tu.tx_nome,
+	tx_logradouro,
+	nr_numero,
+	tx_cidade
+from tb_usuarios tu
+inner join tb_enderecos te 
+on tu.id_usuario = te.cd_usuario; 
+
+create index
+	idx_enderecos_user
+	on tb_enderecos(cd_usuario);
+-- 0,012 -> 0,012
+
