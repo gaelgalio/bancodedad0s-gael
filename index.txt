@@ -75,3 +75,57 @@ create index
 	on tb_enderecos(cd_usuario);
 -- 0,012 -> 0,012
 
+-- 02/10 views e revisao
+
+create view vw_pedidos_usuarios as 
+select
+	tp.cd_usuario,
+	count (tp.id_pedido) as totalPedidos,
+	sum ((tip.nr_quantidade * vl_unitario) - vl_desconto) as liqTotalCompra,
+	sum (tip.nr_quantidade) as totalItens
+from tb_pedidos tp
+inner join tb_itens_pedido tip 
+	on tp.id_pedido = tip.cd_pedido
+inner join tb_usuarios tu
+	on tu.id_usuario = tp.cd_usuario
+where tp.fl_pago is true and tp.dt_pedido >= (now() - interval '2 years')
+group by tp.cd_usuario
+having count(tp.id_pedido) >= 3;
+---
+
+create materialized view tx_cliente_destaques_mat as
+with media as (
+select
+	avg(liqtotalcompra) as valor
+from 
+	vw_pedidos_usuarios
+),
+cancelado as (
+select
+	cd_usuario,
+	count(id_pedido) as total
+from
+	tb_pedidos
+where
+	upper (tx_status) = upper ('CANCELADO')
+group by
+	cd_usuario
+)
+select
+	tu.tx_nome,
+	tu.id_usuario,
+	te.tx_uf as estado,
+	cancelado.total
+from vw_pedidos_usuarios vpu
+inner join tb_usuarios tu
+	on tu.id_usuario = vpu.cd_usuario 
+inner join tb_enderecos te
+	on te.cd_usuario = tu.id_usuario
+inner join tb_pedidos tp
+	on tp.cd_usuario = tu.id_usuario
+left join cancelado 
+	on cancelado.cd_usuario = tu.id_usuario
+inner join media 
+	on vpu.liqtotalcompra > media.valor
+where tu.fl_ativo is true;
+--refresh materialized view currently vw_clientes_destaques_mat
