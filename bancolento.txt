@@ -1,0 +1,100 @@
+CREATE SEQUENCE seq_atividade_id START 1000 INCREMENT 1;
+
+create table tb_atividade (
+id_atividade numeric (18,0)
+ default nextval('seq_atividade_id') primary key,
+tx_nome varchar(255),
+dt_nascimento date,
+tx_genero varchar (2)
+);
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Cauã Dias','2000-08-19', 'M');
+/* ano, mês, dia */
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Giane Freitas','2001-03-10', 'F');
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Lau Motta','2002-10-03', 'NB');
+
+select * from tb_atividade;
+
+create view vw_atividade
+as select * from tb_atividade;
+
+create materialized view
+	mvw_atividade
+as select * from tb_atividade;
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Rafael Mendes','1989-02-10', 'M');
+/* ano, mês, dia */
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Fernanda Soares','1993-05-13', 'F');
+
+insert into tb_atividade (tx_nome, dt_nascimento, tx_genero)
+values ('Gi Grando','2004-12-26', 'NB');
+
+create table tb_atividade_log (
+id_atividade_log numeric (18,0)
+ default nextval('seq_atividade2_id') primary key,
+tx_query varchar(800),
+nr_idade numeric (3),
+tx_mensagem varchar (255),
+cd_atividade numeric (18,0)
+);
+
+CREATE SEQUENCE seq_atividade2_id START 1000 INCREMENT 1;
+
+refresh materialized view mvw_atividade;
+
+-------------------------
+
+create function fn_nome(valor numeric)
+returns varchar
+language plpgsql
+as $$
+	begin
+		if(valor > 18) then
+			return 'maior de idade';
+		elsif(valor = 18) then
+			return 'exatamente 18 anos';
+		else
+			return 'menor de idade';
+		end if;
+	end
+$$;
+
+select *,
+	fn_nome(id_atividade) from tb_atividade;
+
+select	
+	current_date,
+	age(dt_nascimento),
+	extract (year from age(dt_nascimento))
+from tb_atividade
+
+------------------------
+
+create function fn_verificarIdade (idade date)
+returns varchar
+language plpgsql
+as $$ 
+declare idade integer;
+	begin
+		if (extract (year from age(idade)) > 18) then
+		return 'Maior de Idade';
+
+		elsif (extract (year from age(idade)) = 18) then
+		return 'Exatamente 18 anos de Idade';
+		else return 'Menor de Idade';
+		end if;	
+	end
+$$;
+
+select *,
+fn_verificarIdade(dt_nascimento)
+from
+tb_atividade;
