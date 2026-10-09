@@ -98,3 +98,144 @@ select *,
 fn_verificarIdade(dt_nascimento)
 from
 tb_atividade;
+
+-- revisao --
+create function nome(parametros tipo)
+returns tipo_da_funcao
+language plpgsql
+as $$
+	declare
+		variaveis tipo;
+	begin
+
+		if() then
+			return tipo = 1
+		elsif() then
+			return tipo = 2
+		else
+			return tipo = 3
+		end if;
+	
+	end;
+$$;
+
+-- atv 1
+create function fc_calcula_desconto (valor numeric, desconto numeric)
+returns numeric
+language plpgsql
+as $$ 
+	begin
+		return	valor * (1 - desconto / 100);
+	end;	
+$$;
+
+select 
+	id_item_pedido,
+	vl_unitario,
+	vl_desconto,
+	fn_calcula_desconto (vl_unitario, vl_desconto)
+from tb_itens_pedido;
+
+select fn_calcula_desconto (100, 50)
+from tb_itens_pedido;
+
+-- atv 2
+create function fc_calculadora (valorUm numeric, valorDois numeric, operador varchar(1))
+returns numeric
+language plpgsql
+as $$
+	begin
+		if (operador = '-') then 
+			return valorUm - valorDois;
+		elsif (operador = '+') then
+			return valorUm + valorDois;
+		elsif (operador = '*') then
+			return valorUm * valorDois;
+		else 
+			return valorUm / valorDois;
+		end if;
+	end;
+$$;
+
+select fc_calculadora (2, 4, '*')
+from tb_atividade;
+
+-- atv 3
+
+create function fc_baratocaro (preco numeric)
+returns varchar
+language plpgsql
+as $$
+begin
+	if (preco < 50) then
+		return 'Barato';
+	elsif (preco < 200) then
+		return 'Médio';
+		else return 'Caro';
+	end if;
+end;
+$$;
+
+-- atv 4
+
+create function fc_dobro (valor numeric)
+returns numeric
+language plpgsql
+as $$ 
+begin
+return valor * 2;
+end;
+$$;
+
+-- atv 5
+
+create function fc_parimpar (valor numeric)
+returns varchar
+language plpgsql
+as $$ 
+declare resto numeric;
+begin
+	resto := valor % 2;
+ if (resto = 0) then
+	return 'par';
+		else return 'ímpar';
+	end if;
+end;
+$$;
+
+-- atv 6
+
+create function fc_notas (nota numeric)
+returns numeric
+language plpgsql
+as $$
+begin
+	if (valor < 0 or valor > 10) then
+		return 'nota inválida. insira um número menor que 10 ou maior que 0.';
+	elsif (valor >= 7) then
+		return 'aprovado';
+	elsif (valor < 7 or valor >= 5) then 
+		return 'recuperação';
+	else return 'reprovado';
+end if;
+end;
+$$;
+
+
+----
+create function log_atividade()
+returns trigger
+language plpgsql
+as $$ 
+	begin
+		insert into public.tb_atividade_log
+		(tx_query, nr_idade, tx_mensagem, cd_atividade)
+		values (null, null, null, null)
+	end;
+$$;
+
+
+create trigger tr_quando_atualizar_usuario
+before update on tb_usuario
+for each row
+execute function funcao();
