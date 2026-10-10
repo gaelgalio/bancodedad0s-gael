@@ -239,3 +239,81 @@ create trigger tr_quando_atualizar_usuario
 before update on tb_usuario
 for each row
 execute function funcao();
+
+--- 09/10
+
+create or replace function atividade_log_update()
+returns trigger
+language plpgsql
+as $$
+	begin
+	insert into tb_atividade_log
+	(tx_query, nr_idade, tx_mensagem, cd_atividade)
+	values(
+		current_query(),
+		extract (year from age(
+				old.dt_nascimento	
+				)),
+		'MENSAGEM VIA TRIGGER',
+		new.id_atividade
+	);
+	return new;
+	end;
+$$;
+
+create trigger nome 
+	before
+	update on tb_atividade
+for each row 
+execute function atividade_log_update();
+
+update tb_atividade 
+	set dt_nascimento = '2009-08-09',
+	id_atividade = 9
+where id_atividade = 1.006;
+
+select * from tb_pagamentos
+
+old dt_nascimento = '2000-08-09',
+new dt_nascimento = '2009-08-09',
+
+---
+
+create sequence
+	sq_pagamentos start 1 increment 1;
+
+create table public.tb_pagamentos_log(
+		id_pagamentos numeric (18,0)
+			default nextval('sq_pagamentos')
+			primary key,
+		tx_query varchar(800),
+		tx_forma varchar (100),
+		vl_valor_antes numeric (10, 2),
+		vl_valor_depois numeric (10,2),
+		dt_data_modificacao timestamp
+			default now()
+		);
+
+create trigger tr_rejeitar 
+before
+insert on tb_pagamentos
+for each row 
+execute function fn_rejeitar();
+
+CREATE OR REPLACE FUNCTION fn_rejeitar()
+RETURNS trigger
+language plpgsql
+AS $$
+begin
+	insert into tb_pagamentos_log (tx_query, tx_forma, vl_valor_antes,vl_valor_depois)
+	values(current_query(), lower(new.tx_forma ), old.vl_pagamento, new.vl_pagamento);
+ 	return new;
+end;
+$$;
+
+select * from tb_pagamentos_log;
+
+insert into tb_pagamentos
+	(cd_pedido, tx_forma, vl_pagamento, dt_pagamento)
+	values (9, 'PIX', 0, now());
+
