@@ -317,3 +317,26 @@ insert into tb_pagamentos
 	(cd_pedido, tx_forma, vl_pagamento, dt_pagamento)
 	values (9, 'PIX', 0, now());
 
+-----
+
+create view vw_simples as(  
+select 
+	prod.id_produto as codigo_produto,
+	prod.tx_descricao as descricao,
+	pedi.vl_total as total,
+	max(dt_pedido) as maiordataped,
+	max(id_usuario) as maiorusuario
+from tb_pedidos pedi
+inner join tb_usuarios use
+	on use.id_usuario = pedi.cd_usuario
+inner join tb_itens_pedido item
+	on pedi.id_pedido = item.cd_pedido
+inner join tb_produtos prod
+	on prod.id_produto = item.cd_produto
+where
+	exists (select 1 from tb_enderecos ende where tx_uf = upper('sc'))
+	and pedi.tx_status = upper ('pago')
+	and pedi.vl_total > 0
+group by prod.id_produto, prod.tx_descricao, pedi.vl_total
+limit 50;
+);
