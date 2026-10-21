@@ -319,7 +319,7 @@ insert into tb_pagamentos
 
 -----
 
-create view vw_simples as(  
+create or replace view vw_simples as(  
 select 
 	prod.id_produto as codigo_produto,
 	prod.tx_descricao as descricao,
@@ -334,9 +334,72 @@ inner join tb_itens_pedido item
 inner join tb_produtos prod
 	on prod.id_produto = item.cd_produto
 where
-	exists (select 1 from tb_enderecos ende where tx_uf = upper('sc'))
+	exists (select 1 from tb_enderecos ende where tx_uf = upper('sc') and  ende.cd_usuario = use.id_usuario)
 	and pedi.tx_status = upper ('pago')
 	and pedi.vl_total > 0
 group by prod.id_produto, prod.tx_descricao, pedi.vl_total
-limit 50;
+limit 50
 );
+
+select * from vw_simples;
+
+CREATE INDEX idx_simples2 ON tb_itens_pedido(cd_pedido);
+CREATE INDEX idx_simples3 ON tb_itens_pedido(cd_produto);
+
+---0,006s
+---0,001s
+---83%
+---
+vacuum full;
+vacuum full tb_pedidos;
+vacuum analyse tb_pedidos;
+
+----
+create or replace view vw_simples as(  
+select 
+	prod.id_produto as codigo_produto,
+	prod.tx_descricao as descricao,
+	pedi.vl_total as total,
+	max(dt_pedido) as maiordataped,
+	max(id_usuario) as maiorusuario
+from tb_pedidos pedi
+inner join tb_usuarios use
+	on use.id_usuario = pedi.cd_usuario
+inner join tb_itens_pedido item
+	on pedi.id_pedido = item.cd_pedido
+inner join tb_produtos prod
+	on prod.id_produto = item.cd_produto
+where
+	exists (select 1 from tb_enderecos ende where tx_uf = upper('sc') and  ende.cd_usuario = use.id_usuario)
+	and pedi.tx_status = upper ('pago')
+	and pedi.vl_total > 0
+group by prod.id_produto, prod.tx_descricao, pedi.vl_total
+limit 50
+);
+
+select * from vw_simples;
+
+CREATE INDEX idx_simples2 ON tb_itens_pedido(cd_pedido);
+CREATE INDEX idx_simples3 ON tb_itens_pedido(cd_produto);
+
+---0,006s
+---0,001s
+---83%
+
+CREATE OR REPLACE FUNCTION fn_estado (uf varchar)
+RETURNS varchar
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	return
+    CASE upper (uf)
+        WHEN 'SC' THEN 'SANTA CATARINA'
+        WHEN 'SP' THEN 'SÃO PAULO'
+		WHEN 'RS' THEN 'RIO GRANDE DO SUL'
+        when 'PR' then 'PARANÁ'
+		when 'RJ' then 'RIO DE JANEIRO'
+    end case;
+end;
+$$;
+
+select tx_uf, fn_estado(tx_uf) from tb_enderecos;
