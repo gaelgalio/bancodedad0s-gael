@@ -403,3 +403,17 @@ end;
 $$;
 
 select tx_uf, fn_estado(tx_uf) from tb_enderecos;
+
+create sequence sq_olamundo start 1 increment 1;
+
+create table tb_mensagem (
+id_mensagem numeric (18,0)
+	default nextval ('sq_olamundo') primary key,
+tx_descricao varchar (100)
+);
+
+insert into tb_mensagem (tx_descricao)
+	values ('Olá Mundo/Produto Novo');
+
+select * from tb_mensagem;
+create database backup_olamundo;
