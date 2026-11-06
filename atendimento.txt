@@ -118,3 +118,24 @@ where tx_mes = '2026-10' and vl_cobranca > (
 	from tb_cobrancas)
 group by tx_nome
 order by total;
+
+--- dia 05/11
+
+select 
+	tc.tx_nome as nome_cliente,
+	tp.tx_nome as nome_plano,
+	count(vl_cobranca) as nr_cobrancas,
+	max(vl_cobranca) as vl_maior_cobranca,
+	sum(vl_cobranca) as vl_cobrado,
+	sum(case when tp2.id_pagamento is not null then tp2.vl_pago  else 0 end) as vl_pago,
+	sum(case when tp2.id_pagamento is null then tc2.vl_cobranca   else 0 end) as vl_em_aberto,
+	min(dt_pagamento) as dt_primeiro_pagamento,
+	max(dt_pagamento) as dt_ultimo_pagamento
+from tb_clientes tc
+inner join tb_planos tp on tc.cd_plano  = tp.id_plano 
+inner join tb_cobrancas tc2 
+	on tc.id_cliente = tc2.cd_cliente
+left join tb_pagamentos tp2 
+	on tc2.id_cobranca = tp2.cd_cobranca
+group by tc.tx_nome, tp.tx_nome
+order by vl_em_aberto desc, nome_cliente desc;
